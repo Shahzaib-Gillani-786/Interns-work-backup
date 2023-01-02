@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Buy Products</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://js.stripe.com/v3/"></script>
+  </head>
+  <body class="container" >
+      <div class="product">
+        <input type="text" placeholder="Name" id="name" >
+        <input type="text" placeholder="quantity" id="quantity" >
+        <input type="text" placeholder="amount" id="amount" >
+
+        <img
+          src="https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/iphone-12-purple-select-2021?wid=470&hei=556&fmt=jpeg&qlt=95&.v=1617130317000"
+          alt="iphone 12"
+          class="product_img"
+        />
+        <div class="description">
+          <h3>iPhone 12</h3>
+          <h4>&#8377 100.00</h4>
+        </div>
+        <button type="button" id="btn">BUY</button>
+      </div>
+  </body>
+  <script type="text/javascript">
+    const a="iphone12"
+    var stripe = Stripe("pk_test_51MBfbdDjBgI52bwWzHl4WfWY5EEoiwKKK59UHgoK5QlL5UWagSMnUzI7MEWuoqHet1WH3J5d2QyYAFrJMfxACiHO00udKUQ9nu");
+    var checkoutButton = document.getElementById("btn");
+
+    checkoutButton.addEventListener("click", function () {
+      fetch("/payment", {
+        headers: {'Content-Type': 'application/json'},
+        method: "POST",
+        body: JSON.stringify({
+            "product": {
+               "name":document.getElementById('name').value,
+               "image": "https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/iphone-12-purple-select-2021?wid=470&hei=556&fmt=jpeg&qlt=95&.v=1617130317000", 
+               "quantity":document.getElementById('quantity').value,
+               "amount":document.getElementById('amount').value
+            }})
+      })
+        .then(function (response) {
+          return response.json();
+        })
+        .then(function (session) {
+          return stripe.redirectToCheckout({ sessionId: session.id });
+        })
+        .then(function (result) {
+
+          if (result.error) {
+            alert(result.error.message);
+          }
+        })
+        .catch(function (error) {
+          console.error("Error:", error);
+        });
+    });
+  </script>
+</html>
